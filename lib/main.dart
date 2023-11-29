@@ -7,5 +7,6 @@ import 'src/settings/settings_service.dart';
 void main() async {
   final settingsController = SettingsController(SettingsService());
   await settingsController.loadSettings();
+  await settingsController.initHive(); 
   runApp(MyApp(settingsController: settingsController));
 }

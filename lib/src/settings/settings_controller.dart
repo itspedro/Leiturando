@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 
 import 'settings_service.dart';
 
@@ -27,4 +28,10 @@ class SettingsController with ChangeNotifier {
 
     await _settingsService.updateThemeMode(newThemeMode);
   }
+
+  Future<void> initHive() async {
+    await Hive.initFlutter();
+    await Hive.openBox('favorites');
+  }
+
 }
