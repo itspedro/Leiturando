@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
                     return const BookDetailsView();
                   case HomeView.routeName:
                   default:
-                    return const HomeView();
+                    return HomeView();
                 }
               },
             );

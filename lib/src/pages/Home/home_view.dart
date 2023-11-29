@@ -1,20 +1,19 @@
+import 'package:Leiturando/models/book.dart';
+import 'package:Leiturando/repositories/books_repository.dart';
+import 'package:Leiturando/repositories/favorites_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
 
 import '../../settings/settings_view.dart';
-import '../Book/book.dart';
 import '../Book/book_details_view.dart';
 
 /// Displays a list of SampleItems.
 class HomeView extends StatelessWidget {
-  const HomeView({
+  HomeView({
     super.key,
-    this.items = const [
-      Book(1, "Livro 1", "Autor 1", "assets/images/interstellar.jpg"),
-      Book(2, "Livro 2", "Autor 2", "assets/images/interstellar.jpg"),
-      Book(3, "Livro 3", "Autor 3", "assets/images/interstellar.jpg"),
-    ],
   });
+
+  final items = BooksRepository.list;
 
   static const List<Tab> myTabs = <Tab>[
     Tab(text: 'Livros', icon: Icon(Icons.book)),
@@ -22,8 +21,6 @@ class HomeView extends StatelessWidget {
   ];
 
   static const routeName = '/';
-
-  final List<Book> items;
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +54,14 @@ class HomeView extends StatelessWidget {
 
 Widget buildTabView(
     BuildContext context, List<Book> items, bool isFavoritesTab) {
-  return ValueListenableBuilder(
-    valueListenable: Hive.box('favorites').listenable(),
-    builder: (context, Box box, child) {
-      final List<Book> books = isFavoritesTab
-          ? items.where((item) => box.containsKey(item.id)).toList()
-          : items;
+  return Consumer<FavoritesRepository>(
+    builder: (context, box, child) {
+      
+      final favoritesRepository =
+          Provider.of<FavoritesRepository>(context, listen: false);
+
+      final List<Book> books =
+          isFavoritesTab ? favoritesRepository.list : items;
 
       return GridView.builder(
         padding: const EdgeInsets.all(20),
@@ -76,7 +75,7 @@ Widget buildTabView(
         itemCount: books.length,
         itemBuilder: (BuildContext context, int index) {
           final Book book = books[index];
-          final bool isBookMarked = box.containsKey(book.id);
+          final bool isBookMarked = box.isBookMarked(book);
 
           return ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -84,29 +83,29 @@ Widget buildTabView(
               header: GridTileBar(
                 title: const Text(""),
                 trailing: IconButton(
-                    icon: Icon(
-                      isBookMarked ? Icons.bookmark : Icons.bookmark_border,
-                      color: isBookMarked ? Colors.red : Colors.black,
-                      size: 30,
-                    ),
-                    onPressed: () async {
-                      if (isBookMarked) {
-                        await box.delete(book.id);
-                      } else {
-                        await box.put(book.id, book.id);
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            !isBookMarked
-                                ? 'Adicionado aos favoritos'
-                                : 'Removido dos favoritos',
-                          ),
-                          duration: const Duration(milliseconds: 1000),
-                        ),
-                      );
-                    },
+                  icon: Icon(
+                    isBookMarked ? Icons.bookmark : Icons.bookmark_border,
+                    color: isBookMarked ? Colors.red : Colors.black,
+                    size: 30,
                   ),
+                  onPressed: () {
+                    if (isBookMarked) {
+                      favoritesRepository.remove(book);
+                    } else {
+                      favoritesRepository.add(book);
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          !isBookMarked
+                              ? 'Adicionado aos favoritos'
+                              : 'Removido dos favoritos',
+                        ),
+                        duration: const Duration(milliseconds: 1000),
+                      ),
+                    );
+                  },
+                ),
               ),
               footer: GridTileBar(
                 title: Text(book.title),
