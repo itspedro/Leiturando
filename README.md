@@ -31,12 +31,17 @@
 * [Flutter](https://flutter.dev/docs/get-started/install)
 
 
+> [!IMPORTANT]
+> É preciso ter um emulador ou um dispositivo físico para executar o projeto. Caso não tenha um emulador, siga o tutorial de instalação do Flutter para instalar o emulador do Android Studio.
+
+
 ### Instalação
 
 1. Clone o repositorio.
 
    ```bash
    git clone https://github.com/itspedro/leiturando.git
+   cd leiturando
    ```
 
 2. Execute o comando para instalar as dependências.
@@ -52,6 +57,10 @@
    ```
 
 <p align="right">(<a href="#readme-top">ir para o topo</a>)</p>
+
+## APK
+
+Caso queira testar o aplicativo sem precisar clonar o repositório e executar localmente, pode baixar o APK [aqui]("https://drive.google.com/drive/folders/1oNBv0hjSUlwogMyVzDlAcXLZR8yEpBeI?usp=sharing")
 
 
 ## Links úteis
