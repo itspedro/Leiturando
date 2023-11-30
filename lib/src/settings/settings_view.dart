@@ -13,28 +13,32 @@ class SettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text('Configurações'),
       ),
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: DropdownButton<ThemeMode>(
-          value: controller.themeMode,
-          onChanged: controller.updateThemeMode,
-          items: const [
-            DropdownMenuItem(
-              value: ThemeMode.system,
-              child: Text('Sistema'),
-            ),
-            DropdownMenuItem(
-              value: ThemeMode.light,
-              child: Text('Claro'),
-            ),
-            DropdownMenuItem(
-              value: ThemeMode.dark,
-              child: Text('Escuro'),
-            )
-          ],
-        ),
+        children: [
+          const Text('Tema'),
+          const SizedBox(height: 8),
+          DropdownButton<ThemeMode>(
+            value: controller.themeMode,
+            onChanged: controller.updateThemeMode,
+            items: const [
+              DropdownMenuItem(
+                value: ThemeMode.system,
+                child: Text('Sistema'),
+              ),
+              DropdownMenuItem(
+                value: ThemeMode.light,
+                child: Text('Claro'),
+              ),
+              DropdownMenuItem(
+                value: ThemeMode.dark,
+                child: Text('Escuro'),
+              )
+            ],
+          ),
+        ],
       ),
     );
   }
