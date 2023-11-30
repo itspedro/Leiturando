@@ -60,7 +60,7 @@
 
 ## APK
 
-Caso queira testar o aplicativo sem precisar clonar o repositório e executar localmente, pode baixar o APK [aqui]("https://drive.google.com/drive/folders/1oNBv0hjSUlwogMyVzDlAcXLZR8yEpBeI?usp=sharing")
+Caso queira testar o aplicativo sem precisar clonar o repositório e executar localmente, pode baixar o APK [aqui](https://drive.google.com/drive/folders/1oNBv0hjSUlwogMyVzDlAcXLZR8yEpBeI?usp=sharing).
 
 
 ## Links úteis
