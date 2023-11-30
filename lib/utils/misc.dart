@@ -9,7 +9,7 @@ class Misc {
   downloadFile(String url, int id) async {
     Dio dio = Dio();
 
-    Map<String, dynamic> data = await _getFilePath(id);
+    Map<String, dynamic> data = await getFilePath(id);
     String path = data['path'];
     File file = data['file'];
 
@@ -20,33 +20,35 @@ class Misc {
         path,
         deleteOnError: true,
       ).whenComplete(() {
-        print('Downloaded file $id.epub');
         filePath = path;
       });
     } else {
-      print('file $id.epub already exists.');
       filePath = path;
     }
   }
 
-   Future<Map<String, dynamic>> _getFilePath(int id) async {
-    Directory? appDocDir = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
+   Future<Map<String, dynamic>> getFilePath(int id) async {
+    Directory? appDocDir = await getApplicationDocumentsDirectory();
 
-    String path = '${appDocDir!.path}/$id.epub}';
+    String path = '${appDocDir.path}/$id.epub';
     File file = File(path);
 
     return {'path': path, 'file': file};
   }
 
   Future<void> deleteFile(int id) async {
-    Map<String, dynamic> data = await _getFilePath(id);
+    Map<String, dynamic> data = await getFilePath(id);
     File file = data['file'];
 
     if (file.existsSync()) {
-      print('Deleting file $id.epub');
       await file.delete();
     }
   }
+
+  Future<bool> isFileExists(int id) async {
+    Map<String, dynamic> data = await getFilePath(id);
+    File file = data['file'];
+    return file.existsSync();
+  }
+
 }
