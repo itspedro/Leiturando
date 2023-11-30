@@ -56,9 +56,11 @@ Widget buildTabView(
     BuildContext context, List<Book> items, bool isFavoritesTab) {
   return Consumer<FavoritesRepository>(
     builder: (context, box, child) {
-      
+    if (box.isLoading) {
+      return const CircularProgressIndicator();
+    } else {
       final favoritesRepository =
-          Provider.of<FavoritesRepository>(context, listen: false);
+          Provider.of<FavoritesRepository>(context);
 
       final List<Book> books =
           isFavoritesTab ? favoritesRepository.list : items;
@@ -92,7 +94,7 @@ Widget buildTabView(
                     if (isBookMarked) {
                       favoritesRepository.remove(book);
                     } else {
-                      favoritesRepository.add(book);
+                      favoritesRepository.save([book]);
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -120,7 +122,7 @@ Widget buildTabView(
                   );
                 },
                 child: Image.asset(
-                  book.cover,
+                  book.cover_url,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -128,6 +130,7 @@ Widget buildTabView(
           );
         },
       );
+    }
     },
   );
 }

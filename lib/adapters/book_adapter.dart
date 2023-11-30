@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 class BookAdapter extends TypeAdapter<Book> {
   @override
-  final typeId = 1;
+  final typeId = 0;
 
   @override
   Book read(BinaryReader reader) {
@@ -11,7 +11,8 @@ class BookAdapter extends TypeAdapter<Book> {
       id: reader.readInt(),
       title: reader.readString(),
       author: reader.readString(),
-      cover: reader.readString(),
+      cover_url: reader.readString(),
+      download_url: reader.readString(),
     );
   }
 
@@ -20,6 +21,8 @@ class BookAdapter extends TypeAdapter<Book> {
     writer.writeInt(obj.id);
     writer.writeString(obj.title);
     writer.writeString(obj.author);
-    writer.writeString(obj.cover);
+    writer.writeString(obj.cover_url);
+    writer.writeString(obj.download_url);
   }
+
 }
