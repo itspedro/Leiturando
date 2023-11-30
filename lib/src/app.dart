@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case BookDetailsView.routeName:
-                    return const BookDetailsView();
+                    return BookDetailsView();
                   case HomeView.routeName:
                   default:
                     return HomeView();
