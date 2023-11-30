@@ -1,13 +1,19 @@
+import 'dart:io';
+
 import 'package:Leiturando/models/book.dart';
 import 'package:Leiturando/repositories/books_repository.dart';
 import 'package:Leiturando/repositories/favorites_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vocsy_epub_viewer/epub_viewer.dart';
 
 import '../../settings/settings_view.dart';
-import '../Book/book_details_view.dart';
 
-/// Displays a list of SampleItems.
+enum PageEnum {
+  home,
+  favorites,
+}
+
 class HomeView extends StatelessWidget {
   HomeView({
     super.key,
@@ -43,8 +49,8 @@ class HomeView extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            buildTabView(context, items, false),
-            buildTabView(context, items, true),
+            buildTabView(context, items, PageEnum.home),
+            buildTabView(context, items, PageEnum.favorites),
           ],
         ),
       ),
@@ -52,85 +58,133 @@ class HomeView extends StatelessWidget {
   }
 }
 
-Widget buildTabView(
-    BuildContext context, List<Book> items, bool isFavoritesTab) {
+Widget buildTabView(BuildContext context, List<Book> items, PageEnum page) {
   return Consumer<FavoritesRepository>(
     builder: (context, box, child) {
-    if (box.isLoading) {
-      return const CircularProgressIndicator();
-    } else {
-      final favoritesRepository =
-          Provider.of<FavoritesRepository>(context);
+      if (box.isLoading) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      } else {
+        final favoritesRepository = Provider.of<FavoritesRepository>(context);
 
-      final List<Book> books =
-          isFavoritesTab ? favoritesRepository.list : items;
+        List<Book> books = [];
+        String restoreId;
 
-      return GridView.builder(
-        padding: const EdgeInsets.all(20),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          childAspectRatio: 0.7,
-          mainAxisSpacing: 10,
-        ),
-        restorationId: isFavoritesTab ? 'favoritesView' : 'homeView',
-        itemCount: books.length,
-        itemBuilder: (BuildContext context, int index) {
-          final Book book = books[index];
-          final bool isBookMarked = box.isBookMarked(book);
+        switch (page) {
+          case PageEnum.home:
+            books = items;
+            restoreId = 'homeView';
+            break;
+          case PageEnum.favorites:
+            books = favoritesRepository.list;
+            restoreId = 'favoriteView';
+            break;
+        }
 
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: GridTile(
-              header: GridTileBar(
-                title: const Text(""),
-                trailing: IconButton(
-                  icon: Icon(
-                    isBookMarked ? Icons.bookmark : Icons.bookmark_border,
-                    color: isBookMarked ? Colors.red : Colors.black,
-                    size: 30,
-                  ),
-                  onPressed: () {
-                    if (isBookMarked) {
-                      favoritesRepository.remove(book);
-                    } else {
-                      favoritesRepository.save([book]);
-                    }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          !isBookMarked
-                              ? 'Adicionado aos favoritos'
-                              : 'Removido dos favoritos',
+        return GridView.builder(
+          padding: const EdgeInsets.all(20),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            childAspectRatio: 0.7,
+            mainAxisSpacing: 10,
+          ),
+          restorationId: restoreId,
+          itemCount: books.length,
+          itemBuilder: (BuildContext context, int index) {
+            final Book book = books[index];
+            final bool isBookMarked = box.isBookMarked(book);
+
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: GridTile(
+                header: GridTileBar(
+                  title: const Text(""),
+                  trailing: IconButton(
+                    icon: Icon(
+                      isBookMarked ? Icons.bookmark : Icons.bookmark_border,
+                      color: isBookMarked ? Colors.red : Colors.black,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      if (isBookMarked) {
+                        favoritesRepository.remove(book);
+                      } else {
+                        favoritesRepository.save([book]);
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            !isBookMarked
+                                ? 'Adicionado aos favoritos'
+                                : 'Removido dos favoritos',
+                          ),
+                          duration: const Duration(milliseconds: 1000),
                         ),
-                        duration: const Duration(milliseconds: 1000),
-                      ),
+                      );
+                    },
+                  ),
+                ),
+                footer: GridTileBar(
+                  title: Text(book.title),
+                  subtitle: Text(book.author),
+                  backgroundColor: Colors.black45,
+                ),
+                child: GestureDetector(
+                  onTap: () async {
+                    bool fileExists =
+                        await favoritesRepository.isFileExists(book);
+                    VocsyEpub.setConfig(
+                      themeColor: Theme.of(context).primaryColor,
+                      identifier: "iosBook",
+                      scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
+                      allowSharing: true,
+                      enableTts: true,
+                      nightMode: true,
                     );
+
+                    if (fileExists) {
+                      String path = await favoritesRepository.getFilePath(book);
+
+                      VocsyEpub.open(
+                        path,
+                        lastLocation: EpubLocator.fromJson({
+                          "bookId": "2239",
+                          "href": "/OEBPS/ch06.xhtml",
+                          "created": 1539934158390,
+                          "locations": {
+                            "cfi": "epubcfi(/0!/4/4[simple_book]/2/2/6)"
+                          }
+                        }),
+                      );
+                    } else {
+                      await favoritesRepository.downloadFile(book);
+                      String path = await favoritesRepository.getFilePath(book);
+
+                      VocsyEpub.open(
+                        path,
+                        lastLocation: EpubLocator.fromJson({
+                          "bookId": "2239",
+                          "href": "/OEBPS/ch06.xhtml",
+                          "created": 1539934158390,
+                          "locations": {
+                            "cfi": "epubcfi(/0!/4/4[simple_book]/2/2/6)"
+                          }
+                        }),
+                      );
+                    }
                   },
+                  child: Image.file(
+                    File(book.cover_path!),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              footer: GridTileBar(
-                title: Text(book.title),
-                subtitle: Text(book.author),
-                backgroundColor: Colors.black45,
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.restorablePushNamed(
-                    context,
-                    BookDetailsView.routeName,
-                  );
-                },
-                child: Image.asset(
-                  book.cover_url,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    }
+            );
+          },
+        );
+      }
     },
   );
 }

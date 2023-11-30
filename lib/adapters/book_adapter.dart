@@ -13,6 +13,7 @@ class BookAdapter extends TypeAdapter<Book> {
       author: reader.readString(),
       cover_url: reader.readString(),
       download_url: reader.readString(),
+      cover_path: reader.readString(),
     );
   }
 
@@ -23,6 +24,7 @@ class BookAdapter extends TypeAdapter<Book> {
     writer.writeString(obj.author);
     writer.writeString(obj.cover_url);
     writer.writeString(obj.download_url);
+    writer.writeString(obj.cover_path!);
   }
 
 }

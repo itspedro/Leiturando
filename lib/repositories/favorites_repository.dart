@@ -98,7 +98,6 @@ class FavoritesRepository extends ChangeNotifier {
       } else {
         await requestPermissionAndStartDownload();
       }
-      print("ANDROID VERSION: $version");
     }
   }
 
@@ -110,8 +109,30 @@ class FavoritesRepository extends ChangeNotifier {
   }
 
   Future<void> startDownload() async {
+    _isLoading = true;
+    notifyListeners();
     for (var book in _list) {
       await Misc().downloadFile(book.download_url, book.id);
+      notifyListeners();
     }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<bool> isFileExists(Book book) async {
+    return await Misc().isFileExists(book.id);
+  }
+
+  Future<String> getFilePath(Book book) async {
+    Map<String, dynamic> data = await Misc().getFilePath(book.id);
+    return data['path'];
+  }
+
+  Future<void> downloadFile(Book book) async {
+    _isLoading = true;
+    notifyListeners();
+    await Misc().downloadFile(book.download_url, book.id);
+    _isLoading = false;
+    notifyListeners();
   }
 }

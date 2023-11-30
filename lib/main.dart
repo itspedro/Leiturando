@@ -11,6 +11,7 @@ void main() async {
   final settingsController = SettingsController(SettingsService());
   await settingsController.loadSettings();
   await settingsController.initHive();
+  await settingsController.fetchBooks();
   runApp(
     ChangeNotifierProvider<FavoritesRepository>(
       create: (context) => FavoritesRepository(),

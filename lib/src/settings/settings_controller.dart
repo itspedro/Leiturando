@@ -1,3 +1,4 @@
+import 'package:Leiturando/repositories/books_repository.dart';
 import 'package:Leiturando/src/settings/hive/hive_config.dart';
 import 'package:flutter/material.dart';
 
@@ -31,5 +32,9 @@ class SettingsController with ChangeNotifier {
 
   Future<void> initHive() async {
     await HiveConfig.start();
+  }
+
+  Future<void> fetchBooks() async {
+    await BooksRepository().fetchBooks();
   }
 }

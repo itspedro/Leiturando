@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'pages/Book/book_details_view.dart';
 import 'pages/Home/home_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
@@ -33,8 +32,6 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case BookDetailsView.routeName:
-                    return BookDetailsView();
                   case HomeView.routeName:
                   default:
                     return HomeView();
